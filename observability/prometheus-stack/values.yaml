@@ -1,0 +1,128 @@
+# kube-prometheus-stack minimal configuration
+# Optimized for small K3s clusters
+
+kube-prometheus-stack:
+  # Prometheus Operator
+  prometheusOperator:
+    enabled: true
+    resources:
+      limits:
+        cpu: 100m
+        memory: 128Mi
+      requests:
+        cpu: 50m
+        memory: 64Mi
+
+  # Prometheus Server
+  prometheus:
+    enabled: true
+    prometheusSpec:
+      retention: 7d
+      retentionSize: "5GB"
+      storageSpec:
+        volumeClaimTemplate:
+          spec:
+            storageClassName: gp2
+            accessModes: ["ReadWriteOnce"]
+            resources:
+              requests:
+                storage: 10Gi
+      resources:
+        limits:
+          cpu: 200m
+          memory: 512Mi
+        requests:
+          cpu: 100m
+          memory: 256Mi
+      # Service Monitor selector
+      serviceMonitorSelector: {}
+      serviceMonitorNamespaceSelector: {}
+      podMonitorSelector: {}
+      podMonitorNamespaceSelector: {}
+      scrapeInterval: 30s
+      evaluationInterval: 30s
+      externalLabels:
+        cluster: "k3s-cluster"
+
+  # Grafana
+  grafana:
+    enabled: true
+    adminPassword: "admin"
+    persistence:
+      enabled: true
+      storageClassName: gp2
+      size: 5Gi
+    resources:
+      limits:
+        cpu: 100m
+        memory: 128Mi
+      requests:
+        cpu: 50m
+        memory: 64Mi
+    # Grafana Ingress
+    ingress:
+      enabled: true
+      ingressClassName: traefik
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt-prod
+      hosts:
+        - grafana.k8s.repitto.com
+      tls:
+        - secretName: grafana-tls-cert
+          hosts:
+            - grafana.k8s.repitto.com
+
+  # Alertmanager
+  alertmanager:
+    enabled: true
+    alertmanagerSpec:
+      storage:
+        volumeClaimTemplate:
+          spec:
+            storageClassName: gp2
+            accessModes: ["ReadWriteOnce"]
+            resources:
+              requests:
+                storage: 2Gi
+      resources:
+        limits:
+          cpu: 50m
+          memory: 64Mi
+        requests:
+          cpu: 25m
+          memory: 32Mi
+    config:
+      global:
+        resolve_timeout: 5m
+      route:
+        group_by: ['alertname', 'cluster']
+        group_wait: 10s
+        group_interval: 10s
+        repeat_interval: 12h
+        receiver: 'null'
+      receivers:
+      - name: 'null'
+
+  # Disable Node Exporter to save resources
+  nodeExporter:
+    enabled: false
+
+  # Kube State Metrics
+  kubeStateMetrics:
+    enabled: true
+    resources:
+      limits:
+        cpu: 50m
+        memory: 64Mi
+      requests:
+        cpu: 25m
+        memory: 32Mi
+
+  # Default rules
+  defaultRules:
+    create: true
+    rules:
+      kubernetesApps: true
+      kubernetesResources: true
+      kubernetesSystem: true
+      prometheus: true

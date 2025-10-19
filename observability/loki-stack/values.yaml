@@ -1,0 +1,30 @@
+# loki-stack minimal configuration
+# Optimized for small K3s clusters
+
+loki-stack:
+  # Loki
+  loki:
+    enabled: true
+    persistence:
+      enabled: true
+      storageClassName: gp2
+      size: 10Gi
+    resources:
+      limits:
+        cpu: 200m
+        memory: 256Mi
+      requests:
+        cpu: 50m
+        memory: 128Mi
+
+  # Promtail - Log collector (DaemonSet - disabled to save pods)
+  promtail:
+    enabled: false
+
+  # Grafana - disabled (using one from prometheus-stack)
+  grafana:
+    enabled: false
+
+  # Fluent Bit - disabled
+  fluent-bit:
+    enabled: false
