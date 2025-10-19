@@ -6,9 +6,7 @@ loki-stack:
   loki:
     enabled: true
     persistence:
-      enabled: true
-      storageClassName: gp2
-      size: 10Gi
+      enabled: false
     resources:
       limits:
         cpu: 200m
