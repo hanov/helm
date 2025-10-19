@@ -6,7 +6,7 @@ image:
   tag: "v0.1"
 
 service:
-  type: LoadBalancer
+  type: ClusterIP
   port: 80
 
 resources:
@@ -29,3 +29,7 @@ autoscaling:
   maxReplicas: 10
   targetCPUUtilizationPercentage: 70
   targetMemoryUtilizationPercentage: 75
+
+ingress:
+  enabled: true
+  host: prod.k8s.repitto.com
