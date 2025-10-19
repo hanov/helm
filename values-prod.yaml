@@ -1,0 +1,31 @@
+replicaCount: 3
+
+image:
+  repository: 541770108352.dkr.ecr.us-east-1.amazonaws.com/learning-hub
+  pullPolicy: IfNotPresent
+  tag: "v0.1"
+
+service:
+  type: LoadBalancer
+  port: 80
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 250m
+    memory: 256Mi
+
+env:
+  - name: ENVIRONMENT
+    value: "production"
+  - name: LOG_LEVEL
+    value: "info"
+
+autoscaling:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 75
