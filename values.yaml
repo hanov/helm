@@ -1,12 +1,12 @@
 replicaCount: 1
 
 image:
-  repository: learning-hub
-  pullPolicy: IfNotPresent
-  tag: "latest"
+  repository: 541770108352.dkr.ecr.us-east-1.amazonaws.com/learning-hub
+  pullPolicy: Always
+  tag: "v0.1"
 
 service:
-  type: ClusterIP
+  type: LoadBalancer
   port: 80
 
 resources:
@@ -17,11 +17,15 @@ resources:
     cpu: 100m
     memory: 128Mi
 
-env: []
+env:
+  - name: ENVIRONMENT
+    value: "development"
+  - name: LOG_LEVEL
+    value: "debug"
 
 autoscaling:
-  enabled: false
+  enabled: true
   minReplicas: 1
   maxReplicas: 5
   targetCPUUtilizationPercentage: 80
-  # targetMemoryUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
