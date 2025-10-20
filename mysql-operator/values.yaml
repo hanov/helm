@@ -1,8 +1,8 @@
 replicaCount: 3
 
 image:
-  repository: mysql
-  tag: "8.0"
+  repository: mariadb
+  tag: "11.4"
   pullPolicy: IfNotPresent
 
 mysql:

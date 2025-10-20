@@ -1,13 +1,13 @@
-# MySQL Operator
+# MySQL Operator (MariaDB)
 
-A Kubernetes StatefulSet-based MySQL cluster with 3-node master-slave replication.
+A Kubernetes StatefulSet-based MariaDB cluster with 3-node master-slave replication. Built for ARM64/Apple Silicon compatibility.
 
 ## Architecture
 
 - **mysql-0**: Master node (read/write)
 - **mysql-1, mysql-2**: Slave nodes (read-only replicas)
 - Automatic replication setup using xtrabackup
-- GTID-based replication for consistency
+- MariaDB 11.4 (ARM64 compatible)
 
 ## Installation
 
@@ -29,10 +29,10 @@ helm install mysql-operator ./mysql-operator -n dev -f custom-values.yaml
 
 ```bash
 # Connect to master for writes
-mysql -h mysql.dev.svc.cluster.local -u appuser -p
+mariadb -h mysql.dev.svc.cluster.local -u appuser -p
 
 # Connect to read replicas
-mysql -h mysql-read.dev.svc.cluster.local -u appuser -p
+mariadb -h mysql-read.dev.svc.cluster.local -u appuser -p
 ```
 
 ## Configuration
@@ -55,8 +55,8 @@ persistence:
 
 ```bash
 # Check replication status on slaves
-kubectl exec -it mysql-1 -n dev -- mysql -u root -p -e "SHOW SLAVE STATUS\G"
-kubectl exec -it mysql-2 -n dev -- mysql -u root -p -e "SHOW SLAVE STATUS\G"
+kubectl exec -it mysql-1 -n dev -- mariadb -u root -p -e "SHOW SLAVE STATUS\G"
+kubectl exec -it mysql-2 -n dev -- mariadb -u root -p -e "SHOW SLAVE STATUS\G"
 ```
 
 ## Scaling
