@@ -5,6 +5,9 @@ image:
   pullPolicy: Always
   tag: "v0.2"
 
+imagePullSecrets:
+  - name: ecr-secret
+
 service:
   type: LoadBalancer
   port: 80
