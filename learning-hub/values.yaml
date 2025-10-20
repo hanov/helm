@@ -3,7 +3,7 @@ replicaCount: 1
 image:
   repository: 541770108352.dkr.ecr.us-east-1.amazonaws.com/learning-hub
   pullPolicy: Always
-  tag: "v0.2"
+  tag: "armV0.4"
 
 imagePullSecrets:
   - name: ecr-secret
