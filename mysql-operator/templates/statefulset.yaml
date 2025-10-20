@@ -154,7 +154,7 @@ spec:
 
           # Start a server to send backups when requested by peers.
           while true; do
-            nc -l -p 3307 -c "mariadb-backup --backup --slave-info --stream=mbstream --host=127.0.0.1 --user=root --password=${MYSQL_ROOT_PASSWORD}"
+            mariadb-backup --backup --slave-info --stream=mbstream --host=127.0.0.1 --user=root --password=${MYSQL_ROOT_PASSWORD} | nc -l -p 3307
           done
         volumeMounts:
         - name: data
