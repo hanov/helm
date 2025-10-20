@@ -1,0 +1,6 @@
+apiVersion: v2
+name: mysql-operator
+description: MySQL StatefulSet with 3-node replication cluster
+type: application
+version: 1.0.0
+appVersion: "8.0"
