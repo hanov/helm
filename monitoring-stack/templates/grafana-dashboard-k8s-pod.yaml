@@ -1,0 +1,13 @@
+{{- if .Values.grafana.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-k8s-pod
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: grafana
+    component: monitoring
+    grafana_dashboard: "1"
+binaryData:
+  k8s-pod-dashboard.json: {{ .Files.Get "dashboards/k8s-pod-dashboard.json" | b64enc }}
+{{- end }}

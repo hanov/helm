@@ -57,6 +57,12 @@ spec:
         configMap:
           name: grafana-dashboard-provider
       - name: dashboards
-        configMap:
-          name: grafana-dashboards
+        projected:
+          sources:
+          - configMap:
+              name: grafana-dashboard-node-exporter
+          - configMap:
+              name: grafana-dashboard-k8s-cluster
+          - configMap:
+              name: grafana-dashboard-k8s-pod
 {{- end }}
