@@ -1,0 +1,25 @@
+{{- if .Values.alertmanager.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alertmanager-config
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: alertmanager
+    component: monitoring
+data:
+  alertmanager.yml: |
+    global:
+      resolve_timeout: 5m
+
+    route:
+      {{- toYaml .Values.alertmanager.config.route | nindent 6 }}
+
+    receivers:
+      {{- toYaml .Values.alertmanager.config.receivers | nindent 6 }}
+
+    {{- if .Values.alertmanager.config.inhibit_rules }}
+    inhibit_rules:
+      {{- toYaml .Values.alertmanager.config.inhibit_rules | nindent 6 }}
+    {{- end }}
+{{- end }}

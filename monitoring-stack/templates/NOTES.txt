@@ -1,0 +1,69 @@
+Thank you for installing {{ .Chart.Name }}.
+
+Your monitoring stack has been deployed!
+
+Components installed:
+{{- if .Values.prometheus.enabled }}
+- Prometheus (metrics collection)
+{{- end }}
+{{- if .Values.alertmanager.enabled }}
+- Alertmanager (alert management)
+{{- end }}
+{{- if .Values.grafana.enabled }}
+- Grafana (visualization)
+{{- end }}
+{{- if .Values.nodeExporter.enabled }}
+- Node Exporter (system metrics)
+{{- end }}
+{{- if .Values.kubeStateMetrics.enabled }}
+- Kube State Metrics (Kubernetes metrics)
+{{- end }}
+
+To access your monitoring stack:
+
+{{- if .Values.prometheus.enabled }}
+
+1. Prometheus UI:
+   kubectl port-forward -n {{ .Values.global.namespace }} svc/prometheus {{ .Values.prometheus.service.port }}:{{ .Values.prometheus.service.port }}
+   Then navigate to http://localhost:{{ .Values.prometheus.service.port }}
+{{- end }}
+
+{{- if .Values.grafana.enabled }}
+
+2. Grafana UI:
+   {{- if eq .Values.grafana.service.type "LoadBalancer" }}
+   Get the LoadBalancer IP:
+   kubectl get svc -n {{ .Values.global.namespace }} grafana
+   {{- else }}
+   kubectl port-forward -n {{ .Values.global.namespace }} svc/grafana {{ .Values.grafana.service.port }}:{{ .Values.grafana.service.port }}
+   {{- end }}
+   Then navigate to http://localhost:{{ .Values.grafana.service.port }}
+
+   Default credentials:
+   Username: {{ .Values.grafana.adminUser }}
+   Password: {{ .Values.grafana.adminPassword }}
+
+   ⚠️  IMPORTANT: Change the default password immediately!
+{{- end }}
+
+{{- if .Values.alertmanager.enabled }}
+
+3. Alertmanager UI:
+   kubectl port-forward -n {{ .Values.global.namespace }} svc/alertmanager {{ .Values.alertmanager.service.port }}:{{ .Values.alertmanager.service.port }}
+   Then navigate to http://localhost:{{ .Values.alertmanager.service.port }}
+{{- end }}
+
+To check the status of your deployment:
+
+  kubectl get pods -n {{ .Values.global.namespace }}
+  kubectl get svc -n {{ .Values.global.namespace }}
+
+{{- if .Values.alertRules.enabled }}
+
+Alert rules configured:
+{{- range .Values.alertRules.groups }}
+  - {{ .name }} ({{ len .rules }} rules)
+{{- end }}
+{{- end }}
+
+For more information, visit the documentation or check the values.yaml file.

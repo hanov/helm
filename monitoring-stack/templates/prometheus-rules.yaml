@@ -1,0 +1,26 @@
+{{- if and .Values.prometheus.enabled .Values.alertRules.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-rules
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: prometheus
+    component: monitoring
+data:
+  {{- range .Values.alertRules.groups }}
+  {{ .name }}.yml: |
+    groups:
+    - name: {{ .name }}
+      rules:
+      {{- range .rules }}
+      - alert: {{ .alert }}
+        expr: {{ .expr }}
+        for: {{ .for }}
+        labels:
+          {{- toYaml .labels | nindent 10 }}
+        annotations:
+          {{- toYaml .annotations | nindent 10 }}
+      {{- end }}
+  {{- end }}
+{{- end }}

@@ -1,0 +1,48 @@
+{{- if .Values.alertmanager.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alertmanager
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: alertmanager
+    component: monitoring
+spec:
+  replicas: {{ .Values.alertmanager.replicas }}
+  selector:
+    matchLabels:
+      app: alertmanager
+  template:
+    metadata:
+      labels:
+        app: alertmanager
+    spec:
+      containers:
+      - name: alertmanager
+        image: {{ .Values.alertmanager.image.repository }}:{{ .Values.alertmanager.image.tag }}
+        imagePullPolicy: {{ .Values.alertmanager.image.pullPolicy }}
+        args:
+          - '--config.file=/etc/alertmanager/alertmanager.yml'
+          - '--storage.path=/alertmanager'
+        ports:
+        - containerPort: 9093
+          name: http
+        resources:
+          {{- toYaml .Values.alertmanager.resources | nindent 10 }}
+        volumeMounts:
+        - name: config
+          mountPath: /etc/alertmanager
+        - name: storage
+          mountPath: /alertmanager
+      volumes:
+      - name: config
+        configMap:
+          name: alertmanager-config
+      - name: storage
+        {{- if .Values.alertmanager.persistence.enabled }}
+        persistentVolumeClaim:
+          claimName: alertmanager-storage
+        {{- else }}
+        emptyDir: {}
+        {{- end }}
+{{- end }}
