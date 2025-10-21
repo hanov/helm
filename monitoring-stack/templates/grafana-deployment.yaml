@@ -24,15 +24,17 @@ spec:
         - sh
         - -c
         - |
-          apk add --no-cache curl sed
+          apk add --no-cache curl sed jq
           curl -sL https://grafana.com/api/dashboards/1860/revisions/latest/download -o /tmp/node-exporter.json
-          curl -sL https://grafana.com/api/dashboards/13332/revisions/latest/download -o /tmp/k8s-cluster.json
-          curl -sL https://grafana.com/api/dashboards/15760/revisions/latest/download -o /tmp/k8s-global.json
+          curl -sL https://grafana.com/api/dashboards/15661/revisions/latest/download -o /tmp/k8s-cluster.json
+          curl -sL https://grafana.com/api/dashboards/6417/revisions/latest/download -o /tmp/k8s-pods.json
 
-          # Replace datasource variables with Prometheus
-          sed 's/${DS_PROMETHEUS}/Prometheus/g; s/${VAR_DATASOURCE}/Prometheus/g; s/"datasource":\s*null/"datasource": "Prometheus"/g' /tmp/node-exporter.json > /dashboards/node-exporter.json
-          sed 's/${DS_PROMETHEUS}/Prometheus/g; s/${VAR_DATASOURCE}/Prometheus/g; s/"datasource":\s*null/"datasource": "Prometheus"/g' /tmp/k8s-cluster.json > /dashboards/k8s-cluster.json
-          sed 's/${DS_PROMETHEUS}/Prometheus/g; s/${VAR_DATASOURCE}/Prometheus/g; s/"datasource":\s*null/"datasource": "Prometheus"/g' /tmp/k8s-global.json > /dashboards/k8s-global.json
+          # Replace all datasource references with Prometheus using jq
+          for file in node-exporter k8s-cluster k8s-pods; do
+            jq 'walk(if type == "object" and has("datasource") then .datasource = "Prometheus" else . end) |
+                walk(if type == "string" then gsub("\\$\\{DS_PROMETHEUS\\}|\\$\\{VAR_DATASOURCE\\}|\\$\\{datasource\\}";"Prometheus") else . end)' \
+                /tmp/${file}.json > /dashboards/${file}.json
+          done
         volumeMounts:
         - name: dashboards
           mountPath: /dashboards
