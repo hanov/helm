@@ -19,14 +19,20 @@ spec:
     spec:
       initContainers:
       - name: download-dashboards
-        image: curlimages/curl:latest
+        image: alpine:latest
         command:
         - sh
         - -c
         - |
-          curl -sL https://grafana.com/api/dashboards/1860/revisions/latest/download -o /dashboards/node-exporter.json
-          curl -sL https://grafana.com/api/dashboards/13332/revisions/latest/download -o /dashboards/k8s-cluster.json
-          curl -sL https://grafana.com/api/dashboards/15760/revisions/latest/download -o /dashboards/k8s-global.json
+          apk add --no-cache curl sed
+          curl -sL https://grafana.com/api/dashboards/1860/revisions/latest/download -o /tmp/node-exporter.json
+          curl -sL https://grafana.com/api/dashboards/13332/revisions/latest/download -o /tmp/k8s-cluster.json
+          curl -sL https://grafana.com/api/dashboards/15760/revisions/latest/download -o /tmp/k8s-global.json
+
+          # Replace datasource variables with Prometheus
+          sed 's/${DS_PROMETHEUS}/Prometheus/g; s/${VAR_DATASOURCE}/Prometheus/g; s/"datasource":\s*null/"datasource": "Prometheus"/g' /tmp/node-exporter.json > /dashboards/node-exporter.json
+          sed 's/${DS_PROMETHEUS}/Prometheus/g; s/${VAR_DATASOURCE}/Prometheus/g; s/"datasource":\s*null/"datasource": "Prometheus"/g' /tmp/k8s-cluster.json > /dashboards/k8s-cluster.json
+          sed 's/${DS_PROMETHEUS}/Prometheus/g; s/${VAR_DATASOURCE}/Prometheus/g; s/"datasource":\s*null/"datasource": "Prometheus"/g' /tmp/k8s-global.json > /dashboards/k8s-global.json
         volumeMounts:
         - name: dashboards
           mountPath: /dashboards
