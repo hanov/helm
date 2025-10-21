@@ -128,11 +128,11 @@ spec:
             cat mariadb_backup_slave_info | sed -E 's/;$//g' > change_master_to.sql.in
             rm -f mariadb_backup_slave_info mariadb_backup_binlog_info
           elif [[ -f mariadb_backup_binlog_info ]]; then
-            # We're cloning directly from master. Parse binlog position.
-            [[ `cat mariadb_backup_binlog_info` =~ ^(.*?)[[:space:]]+(.*?)$ ]] || exit 1
+            # We're cloning directly from master. Parse binlog position (tab-separated: filename, position, gtid).
+            IFS=$'\t' read binlog_file binlog_pos gtid < mariadb_backup_binlog_info
             rm -f mariadb_backup_binlog_info mariadb_backup_slave_info
-            echo "CHANGE MASTER TO MASTER_LOG_FILE='${BASH_REMATCH[1]}',\
-                  MASTER_LOG_POS=${BASH_REMATCH[2]}" > change_master_to.sql.in
+            echo "CHANGE MASTER TO MASTER_LOG_FILE='${binlog_file}',\
+                  MASTER_LOG_POS=${binlog_pos}" > change_master_to.sql.in
           fi
 
           # Check if we need to complete a clone by starting replication.

@@ -17,6 +17,19 @@ spec:
       labels:
         app: grafana
     spec:
+      initContainers:
+      - name: download-dashboards
+        image: curlimages/curl:latest
+        command:
+        - sh
+        - -c
+        - |
+          curl -sL https://grafana.com/api/dashboards/1860/revisions/latest/download -o /dashboards/node-exporter.json
+          curl -sL https://grafana.com/api/dashboards/7249/revisions/latest/download -o /dashboards/k8s-cluster.json
+          curl -sL https://grafana.com/api/dashboards/6417/revisions/latest/download -o /dashboards/k8s-pods.json
+        volumeMounts:
+        - name: dashboards
+          mountPath: /dashboards
       containers:
       - name: grafana
         image: {{ .Values.grafana.image.repository }}:{{ .Values.grafana.image.tag }}
@@ -57,12 +70,5 @@ spec:
         configMap:
           name: grafana-dashboard-provider
       - name: dashboards
-        projected:
-          sources:
-          - configMap:
-              name: grafana-dashboard-node-exporter
-          - configMap:
-              name: grafana-dashboard-k8s-cluster
-          - configMap:
-              name: grafana-dashboard-k8s-pod
+        emptyDir: {}
 {{- end }}
