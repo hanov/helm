@@ -25,8 +25,8 @@ spec:
         - -c
         - |
           curl -sL https://grafana.com/api/dashboards/1860/revisions/latest/download -o /dashboards/node-exporter.json
-          curl -sL https://grafana.com/api/dashboards/7249/revisions/latest/download -o /dashboards/k8s-cluster.json
-          curl -sL https://grafana.com/api/dashboards/6417/revisions/latest/download -o /dashboards/k8s-pods.json
+          curl -sL https://grafana.com/api/dashboards/13332/revisions/latest/download -o /dashboards/k8s-cluster.json
+          curl -sL https://grafana.com/api/dashboards/15760/revisions/latest/download -o /dashboards/k8s-global.json
         volumeMounts:
         - name: dashboards
           mountPath: /dashboards
