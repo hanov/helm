@@ -52,6 +52,10 @@ spec:
           value: {{ .Values.grafana.adminPassword }}
         - name: GF_INSTALL_PLUGINS
           value: ""
+        - name: GF_UNIFIED_ALERTING_ENABLED
+          value: "true"
+        - name: GF_ALERTING_ENABLED
+          value: "false"
         resources:
           {{- toYaml .Values.grafana.resources | nindent 10 }}
         volumeMounts:
@@ -63,6 +67,8 @@ spec:
           mountPath: /etc/grafana/provisioning/dashboards
         - name: dashboards
           mountPath: /var/lib/grafana/dashboards
+        - name: alerting
+          mountPath: /etc/grafana/provisioning/alerting
       volumes:
       - name: storage
         {{- if .Values.grafana.persistence.enabled }}
@@ -79,4 +85,7 @@ spec:
           name: grafana-dashboard-provider
       - name: dashboards
         emptyDir: {}
+      - name: alerting
+        configMap:
+          name: grafana-alerting
 {{- end }}

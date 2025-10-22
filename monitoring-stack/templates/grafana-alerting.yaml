@@ -1,0 +1,143 @@
+{{- if .Values.grafana.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-alerting
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: grafana
+    component: monitoring
+data:
+  alerting.yaml: |
+    apiVersion: 1
+    contactPoints:
+      - orgId: 1
+        name: alertmanager
+        receivers:
+          - uid: alertmanager
+            type: alertmanager
+            settings:
+              url: http://alertmanager:9093
+
+    policies:
+      - orgId: 1
+        receiver: alertmanager
+        group_by:
+          - grafana_folder
+          - alertname
+        group_wait: 10s
+        group_interval: 10s
+        repeat_interval: 12h
+
+    groups:
+      - orgId: 1
+        name: loki-alerts
+        folder: Logs
+        interval: 1m
+        rules:
+          - uid: learning-hub-errors
+            title: Learning Hub Error Logs
+            condition: C
+            data:
+              - refId: A
+                relativeTimeRange:
+                  from: 300
+                  to: 0
+                datasourceUid: loki
+                model:
+                  expr: 'count_over_time({namespace="dev", pod=~"learning-hub.*"} |~ "(?i)(error|exception|fatal|fail)" [5m])'
+                  queryType: range
+                  refId: A
+              - refId: B
+                relativeTimeRange:
+                  from: 300
+                  to: 0
+                datasourceUid: __expr__
+                model:
+                  type: reduce
+                  expression: A
+                  reducer: sum
+                  refId: B
+              - refId: C
+                relativeTimeRange:
+                  from: 300
+                  to: 0
+                datasourceUid: __expr__
+                model:
+                  type: threshold
+                  expression: B
+                  conditions:
+                    - evaluator:
+                        params:
+                          - 0
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                          - C
+                      type: query
+                  refId: C
+            noDataState: NoData
+            execErrState: Alerting
+            for: 1m
+            annotations:
+              summary: "Errors detected in learning-hub application"
+              description: "{{ $values.B }} error logs detected in the last 5 minutes"
+            labels:
+              severity: warning
+              app: learning-hub
+
+          - uid: learning-hub-high-error-rate
+            title: Learning Hub High Error Rate
+            condition: C
+            data:
+              - refId: A
+                relativeTimeRange:
+                  from: 300
+                  to: 0
+                datasourceUid: loki
+                model:
+                  expr: 'sum(rate({namespace="dev", pod=~"learning-hub.*"} |~ "(?i)(error|exception|fatal)" [5m]))'
+                  queryType: range
+                  refId: A
+              - refId: B
+                relativeTimeRange:
+                  from: 300
+                  to: 0
+                datasourceUid: __expr__
+                model:
+                  type: reduce
+                  expression: A
+                  reducer: last
+                  refId: B
+              - refId: C
+                relativeTimeRange:
+                  from: 300
+                  to: 0
+                datasourceUid: __expr__
+                model:
+                  type: threshold
+                  expression: B
+                  conditions:
+                    - evaluator:
+                        params:
+                          - 1
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                          - C
+                      type: query
+                  refId: C
+            noDataState: NoData
+            execErrState: Alerting
+            for: 2m
+            annotations:
+              summary: "High error rate in learning-hub application"
+              description: "Error rate is {{ $values.B }} errors/second"
+            labels:
+              severity: critical
+              app: learning-hub
+{{- end }}
