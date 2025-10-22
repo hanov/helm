@@ -34,6 +34,9 @@ spec:
           mountPath: /etc/alertmanager
         - name: storage
           mountPath: /alertmanager
+        - name: slack-webhook
+          mountPath: /etc/alertmanager/secrets
+          readOnly: true
       volumes:
       - name: config
         configMap:
@@ -45,4 +48,10 @@ spec:
         {{- else }}
         emptyDir: {}
         {{- end }}
+      - name: slack-webhook
+        secret:
+          secretName: slack-webhook
+          items:
+            - key: url
+              path: slack-webhook-url
 {{- end }}
