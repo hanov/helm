@@ -84,7 +84,7 @@ fluent-bit:
       [OUTPUT]
           Name loki
           Match kube.*
-          Host loki.observability.svc.cluster.local
+          Host loki-stack.observability.svc.cluster.local
           Port 3100
           Labels job=fluent-bit, app=$k8s_labels['app'], namespace=$k8s_namespace_name, pod=$k8s_pod_name
           Auto_Kubernetes_Labels On
@@ -93,7 +93,7 @@ fluent-bit:
       [OUTPUT]
           Name loki
           Match host.*
-          Host loki.observability.svc.cluster.local
+          Host loki-stack.observability.svc.cluster.local
           Port 3100
           Labels job=systemd, host=${HOSTNAME}
 
