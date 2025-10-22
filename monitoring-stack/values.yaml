@@ -101,6 +101,9 @@ grafana:
       enabled: true
       url: http://prometheus:9090
       isDefault: true
+    loki:
+      enabled: true
+      url: http://loki-stack.observability.svc.cluster.local:3100
 
 # Node Exporter configuration
 nodeExporter:

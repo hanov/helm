@@ -19,4 +19,12 @@ data:
       isDefault: {{ .Values.grafana.datasources.prometheus.isDefault }}
       editable: true
     {{- end }}
+    {{- if .Values.grafana.datasources.loki.enabled }}
+    - name: Loki
+      type: loki
+      access: proxy
+      url: {{ .Values.grafana.datasources.loki.url }}
+      isDefault: false
+      editable: true
+    {{- end }}
 {{- end }}
