@@ -83,7 +83,7 @@ data:
             for: 1m
             annotations:
               summary: "Errors detected in learning-hub application"
-              description: "{{ $values.B }} error logs detected in the last 5 minutes"
+              description: "{{ `{{ $values.B }}` }} error logs detected in the last 5 minutes"
             labels:
               severity: warning
               app: learning-hub
@@ -136,7 +136,7 @@ data:
             for: 2m
             annotations:
               summary: "High error rate in learning-hub application"
-              description: "Error rate is {{ $values.B }} errors/second"
+              description: "Error rate is {{ `{{ $values.B }}` }} errors/second"
             labels:
               severity: critical
               app: learning-hub
